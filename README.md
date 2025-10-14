@@ -5,7 +5,7 @@ It runs entirely in the browser, with no setup or installation required — just
 The project is part of the **fc-explorations** organisation, a space for creative side projects and educational demos.  
 
 ## 🎮 Play Online
-👉 [Play TimeTables Game](https://fc-explorations.github.io/FCTimesTablesGame/)
+👉 [Play TimeTables Game](https://fc-explorations.github.io/times-tables/)
 
 ## ✨ Features
 - Practise multiplication tables in a fun and interactive way.  
