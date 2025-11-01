@@ -11,7 +11,6 @@
       "autoNext": true,
       "confettiEnabled": true
     },
-    "progress": { "accThreshold": 80, "attemptThreshold": 10, "prizeInterval": 5 },
-    "speech": { "enabled": false, "rate": 0.9, "voiceURI": "" }
+    "progress": { "accThreshold": 80, "attemptThreshold": 10, "prizeInterval": 5 }
   }
 }
