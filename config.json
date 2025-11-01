@@ -1,0 +1,17 @@
+{
+  "levels": ["level_1.yaml", "level_2.yaml"],
+  "backgrounds": ["img/cats.jpg", "img/cats2.jpg"],
+  "defaults": {
+    "game": {
+      "aMin": 1,
+      "aMax": 12,
+      "bMin": 1,
+      "bMax": 12,
+      "numOptions": 4,
+      "autoNext": true,
+      "confettiEnabled": true
+    },
+    "progress": { "accThreshold": 80, "attemptThreshold": 10, "prizeInterval": 5 },
+    "speech": { "enabled": false, "rate": 0.9, "voiceURI": "" }
+  }
+}

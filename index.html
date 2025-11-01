@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Times Tables Game</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
     :root {
       /* Bright azure palette */
       --bg: #091824;          /* deep base to let azure pop */
@@ -19,6 +20,9 @@
       --warning: #f59e0b;     /* amber */
       --shadow: 0 10px 25px rgba(0,0,0,0.35), 0 6px 10px rgba(0,0,0,0.25);
       --radius: 14px;
+      --admin-toggle-bg: #2563eb;
+      --admin-bg: #13293a;
+      --bg-image: none;
     }
 
     html, body {
@@ -28,9 +32,11 @@
     body {
       margin: 0;
       color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+      font-family: "Nunito", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
         Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background: radial-gradient(1000px 700px at 10% -10%, rgba(34,211,238,0.25) 0%, transparent 60%),
+      background:
+                  var(--bg-image),
+                  radial-gradient(1000px 700px at 10% -10%, rgba(34,211,238,0.25) 0%, transparent 60%),
                   radial-gradient(1000px 700px at 110% 110%, rgba(56,189,248,0.25) 0%, transparent 60%),
                   linear-gradient(160deg, #081523 0%, #0d2333 100%);
     }
@@ -278,6 +284,170 @@
       z-index: 999;
       display: none;
     }
+
+    #admin-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 8px 15px;
+      border-radius: 8px;
+      border: none;
+      background: var(--admin-toggle-bg);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(13,35,51,0.45);
+      z-index: 998;
+      transition: transform 120ms ease, filter 120ms ease;
+    }
+    #admin-toggle:hover { filter: brightness(1.06); transform: translateY(-1px); }
+    #admin-toggle:active { transform: translateY(0); }
+
+    #admin-overlay[hidden] { display: none !important; }
+    #admin-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1400;
+      backdrop-filter: blur(3px);
+    }
+
+    #admin-panel {
+      position: relative;
+      width: min(100%, 440px);
+      background: var(--admin-bg);
+      border-radius: 12px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.55);
+      padding: 28px 24px 24px;
+      display: grid;
+      gap: 18px;
+      max-height: min(92vh, 640px);
+      overflow-y: auto;
+      border: 1px solid rgba(56,189,248,0.18);
+    }
+
+    #admin-panel h2 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    #admin-close {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: none;
+      border: none;
+      color: #e2e8f0;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 4px;
+    }
+    #admin-close:hover { color: #fff; }
+
+    .admin-section {
+      background: rgba(8,21,35,0.45);
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.18);
+      overflow: hidden;
+    }
+    .admin-section > summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px 18px;
+      font-weight: 700;
+      user-select: none;
+      position: relative;
+    }
+    .admin-section > summary::-webkit-details-marker { display: none; }
+    .admin-section[open] > summary {
+      border-bottom: 1px solid rgba(148,163,184,0.2);
+    }
+
+    .admin-fields {
+      display: grid;
+      gap: 14px;
+      padding: 16px 18px 20px;
+    }
+
+    .admin-fields label {
+      display: grid;
+      gap: 6px;
+      font-size: 0.9rem;
+      color: rgba(226,232,240,0.88);
+    }
+    .admin-fields label span { font-weight: 600; }
+    .admin-fields input[type="number"],
+    .admin-fields input[type="text"],
+    .admin-fields select,
+    .admin-fields textarea {
+      width: 100%;
+      background: rgba(7,16,28,0.85);
+      color: #f8fafc;
+      border: 1px solid rgba(148,163,184,0.22);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      min-height: 42px;
+    }
+    .admin-fields textarea { min-height: 120px; }
+    .admin-fields input:focus,
+    .admin-fields textarea:focus {
+      outline: none;
+      border-color: rgba(56,189,248,0.65);
+      box-shadow: 0 0 0 2px rgba(56,189,248,0.25);
+    }
+
+    .admin-double {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .admin-fields .checkbox {
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      background: rgba(8,21,35,0.55);
+      border: 1px solid rgba(148,163,184,0.2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      gap: 12px;
+    }
+    .admin-fields .checkbox input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 720px) {
+      #admin-toggle {
+        right: 16px;
+        bottom: 16px;
+      }
+      #admin-panel {
+        width: min(100%, 420px);
+        padding: 24px 20px 20px;
+      }
+    }
   </style>
   <link rel="icon" href="data:," />
   <meta name="color-scheme" content="dark light" />
@@ -380,13 +550,125 @@
 
   <canvas id="confettiCanvas"></canvas>
 
+  <div id="admin-overlay" hidden>
+    <div id="admin-panel" role="dialog" aria-modal="true" aria-labelledby="admin-title" tabindex="-1">
+      <button id="admin-close" type="button" aria-label="Close setup">×</button>
+      <h2 id="admin-title">Setup</h2>
+      <form id="admin-form" novalidate>
+        <details class="admin-section" open>
+          <summary>Gameplay</summary>
+          <div class="admin-fields">
+            <div class="admin-double">
+              <label>
+                <span>A min</span>
+                <input id="game-a-min" type="number" min="0" step="1" />
+              </label>
+              <label>
+                <span>A max</span>
+                <input id="game-a-max" type="number" min="0" step="1" />
+              </label>
+            </div>
+            <div class="admin-double">
+              <label>
+                <span>B min</span>
+                <input id="game-b-min" type="number" min="0" step="1" />
+              </label>
+              <label>
+                <span>B max</span>
+                <input id="game-b-max" type="number" min="0" step="1" />
+              </label>
+            </div>
+            <div class="admin-double">
+              <label>
+                <span>Number of options</span>
+                <select id="game-num-options">
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="6">6</option>
+                </select>
+              </label>
+            </div>
+            <div class="admin-double">
+              <label class="checkbox">
+                <input id="game-auto-next" type="checkbox" />
+                <span>Auto-advance</span>
+              </label>
+              <label class="checkbox">
+                <input id="game-confetti" type="checkbox" />
+                <span>Enable confetti</span>
+              </label>
+            </div>
+          </div>
+        </details>
+
+        <details class="admin-section" open>
+          <summary>Progress</summary>
+          <div class="admin-fields">
+            <label>
+              <span>Accuracy threshold (%)</span>
+              <input id="progress-acc-threshold" type="number" min="0" max="100" step="1" />
+            </label>
+            <label>
+              <span>Attempt threshold</span>
+              <input id="progress-attempt-threshold" type="number" min="0" step="1" />
+            </label>
+            <label>
+              <span>Prize interval</span>
+              <input id="progress-prize-interval" type="number" min="1" step="1" />
+            </label>
+          </div>
+        </details>
+
+        <details class="admin-section">
+          <summary>Speech</summary>
+          <div class="admin-fields">
+            <label class="checkbox">
+              <input id="speech-enabled" type="checkbox" />
+              <span>Enable speech</span>
+            </label>
+            <label>
+              <span>Speech rate</span>
+              <input id="speech-rate" type="number" min="0.1" max="2" step="0.1" />
+            </label>
+            <label>
+              <span>Voice URI</span>
+              <input id="speech-voice" type="text" />
+            </label>
+          </div>
+        </details>
+
+        <details class="admin-section">
+          <summary>Level editor</summary>
+          <div class="admin-fields">
+            <label>
+              <span>Levels (one per line)</span>
+              <textarea id="levels-list" rows="4"></textarea>
+            </label>
+            <label>
+              <span>Backgrounds (one per line)</span>
+              <textarea id="backgrounds-list" rows="3"></textarea>
+            </label>
+          </div>
+        </details>
+
+        <div class="admin-actions">
+          <button type="submit" class="btn">Save</button>
+          <button type="button" id="admin-cancel" class="btn ghost">Cancel</button>
+          <button type="button" id="admin-reset" class="btn secondary">Reset defaults</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <button id="admin-toggle" type="button" aria-haspopup="dialog" aria-controls="admin-panel">⚙️ Setup</button>
+
   <script>
-    (function() {
+    (async function() {
       const el = (id) => document.getElementById(id);
 
       const equationEl = el('equation');
       const optionsEl = el('options');
-      const feedbackEl = el('feedback');
       const nextBtn = el('nextBtn');
       const resetBtn = el('resetBtn');
       const correctCntEl = el('correctCnt');
@@ -404,26 +686,455 @@
       const newQuestionBtn = el('newQuestion');
       const confettiCanvas = el('confettiCanvas');
 
+      const adminToggle = el('admin-toggle');
+      const adminOverlay = el('admin-overlay');
+      const adminPanel = el('admin-panel');
+      const adminClose = el('admin-close');
+      const adminForm = el('admin-form');
+      const adminCancel = el('admin-cancel');
+      const adminReset = el('admin-reset');
+      const gameAMinEl = el('game-a-min');
+      const gameAMaxEl = el('game-a-max');
+      const gameBMinEl = el('game-b-min');
+      const gameBMaxEl = el('game-b-max');
+      const gameNumOptionsEl = el('game-num-options');
+      const gameAutoNextEl = el('game-auto-next');
+      const gameConfettiEl = el('game-confetti');
+      const accThresholdEl = el('progress-acc-threshold');
+      const attemptThresholdEl = el('progress-attempt-threshold');
+      const prizeIntervalEl = el('progress-prize-interval');
+      const speechEnabledEl = el('speech-enabled');
+      const speechRateEl = el('speech-rate');
+      const speechVoiceEl = el('speech-voice');
+      const levelsListEl = el('levels-list');
+      const backgroundsListEl = el('backgrounds-list');
+
+      const allowedCounts = [2, 3, 4, 6];
+      function coerceCount(n) {
+        n = Number(n) || 4;
+        if (allowedCounts.includes(n)) return n;
+        if (n === 5) return 6;
+        const sorted = allowedCounts.slice().sort((a, b) => a - b);
+        if (n <= sorted[0]) return sorted[0];
+        if (n >= sorted[sorted.length - 1]) return sorted[sorted.length - 1];
+        let best = sorted[0];
+        let bestDiff = Math.abs(n - best);
+        for (const v of sorted) {
+          const d = Math.abs(n - v);
+          if (d < bestDiff) { best = v; bestDiff = d; }
+        }
+        return best;
+      }
+
+      const SETTINGS_STORAGE_KEY = 'mtg-settings';
+      const ADMIN_STORAGE_KEY = 'mtg-admin-settings';
+      const CONFIG_PATH = 'config.json';
+
+      const fallbackConfig = {
+        levels: ['level_1.yaml', 'level_2.yaml'],
+        backgrounds: ['img/cats.jpg', 'img/cats2.jpg'],
+        defaults: {
+          game: {
+            aMin: 1,
+            aMax: 12,
+            bMin: 1,
+            bMax: 12,
+            numOptions: 4,
+            autoNext: true,
+            confettiEnabled: true,
+          },
+          progress: { accThreshold: 80, attemptThreshold: 10, prizeInterval: 5 },
+          speech: { enabled: false, rate: 0.9, voiceURI: '' },
+        },
+      };
+
+      const deepClone = (obj) => JSON.parse(JSON.stringify(obj ?? {}));
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const toInt = (value, fallback, bounds = {}) => {
+        const num = Math.round(Number(value));
+        if (!Number.isFinite(num)) return fallback;
+        const min = bounds.min ?? -Infinity;
+        const max = bounds.max ?? Infinity;
+        return clamp(num, min, max);
+      };
+      const toFloat = (value, fallback, bounds = {}) => {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return fallback;
+        const min = bounds.min ?? -Infinity;
+        const max = bounds.max ?? Infinity;
+        return clamp(num, min, max);
+      };
+
+      function normalizeConfig(raw) {
+        const normalized = deepClone(fallbackConfig);
+        if (!raw || typeof raw !== 'object') return normalized;
+
+        if (Array.isArray(raw.levels)) {
+          const levels = raw.levels.filter((v) => typeof v === 'string' && v.trim());
+          if (levels.length) normalized.levels = levels;
+        }
+
+        if (Array.isArray(raw.backgrounds)) {
+          const bgs = raw.backgrounds.filter((v) => typeof v === 'string' && v.trim());
+          if (bgs.length) normalized.backgrounds = bgs;
+        }
+
+        if (raw.defaults && typeof raw.defaults === 'object') {
+          if (raw.defaults.game && typeof raw.defaults.game === 'object') {
+            const src = raw.defaults.game;
+            const game = normalized.defaults.game;
+            if (typeof src.aMin === 'number') game.aMin = Math.max(0, Math.floor(src.aMin));
+            if (typeof src.aMax === 'number') game.aMax = Math.max(0, Math.floor(src.aMax));
+            if (game.aMin > game.aMax) [game.aMin, game.aMax] = [game.aMax, game.aMin];
+            if (typeof src.bMin === 'number') game.bMin = Math.max(0, Math.floor(src.bMin));
+            if (typeof src.bMax === 'number') game.bMax = Math.max(0, Math.floor(src.bMax));
+            if (game.bMin > game.bMax) [game.bMin, game.bMax] = [game.bMax, game.bMin];
+            if (typeof src.numOptions !== 'undefined') game.numOptions = coerceCount(src.numOptions);
+            if (typeof src.autoNext === 'boolean') game.autoNext = src.autoNext;
+            if (typeof src.confettiEnabled === 'boolean') game.confettiEnabled = src.confettiEnabled;
+          }
+          if (raw.defaults.progress && typeof raw.defaults.progress === 'object') {
+            const prog = raw.defaults.progress;
+            normalized.defaults.progress.accThreshold = toInt(
+              prog.accThreshold,
+              normalized.defaults.progress.accThreshold,
+              { min: 0, max: 100 }
+            );
+            normalized.defaults.progress.attemptThreshold = toInt(
+              prog.attemptThreshold,
+              normalized.defaults.progress.attemptThreshold,
+              { min: 0 }
+            );
+            normalized.defaults.progress.prizeInterval = toInt(
+              prog.prizeInterval,
+              normalized.defaults.progress.prizeInterval,
+              { min: 1 }
+            );
+          }
+          if (raw.defaults.speech && typeof raw.defaults.speech === 'object') {
+            const speech = raw.defaults.speech;
+            normalized.defaults.speech.enabled = Boolean(speech.enabled);
+            normalized.defaults.speech.rate = toFloat(
+              speech.rate,
+              normalized.defaults.speech.rate,
+              { min: 0.1, max: 3 }
+            );
+            if (typeof speech.voiceURI === 'string') {
+              normalized.defaults.speech.voiceURI = speech.voiceURI;
+            }
+          }
+        }
+        return normalized;
+      }
+
+      async function loadConfig() {
+        try {
+          const res = await fetch(CONFIG_PATH, { cache: 'no-store' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          return normalizeConfig(data);
+        } catch (err) {
+          console.warn('[setup] Falling back to embedded config.json defaults.', err);
+          return deepClone(fallbackConfig);
+        }
+      }
+
+      function loadAdminOverrides() {
+        try {
+          const raw = localStorage.getItem(ADMIN_STORAGE_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          return (parsed && typeof parsed === 'object') ? parsed : null;
+        } catch {
+          return null;
+        }
+      }
+
+      function applyAdminOverrides(state, overrides) {
+        if (!overrides || typeof overrides !== 'object') return;
+        if (overrides.game && typeof overrides.game === 'object') {
+          const game = overrides.game;
+          if (typeof game.aMin === 'number') state.game.aMin = Math.max(0, Math.floor(game.aMin));
+          if (typeof game.aMax === 'number') state.game.aMax = Math.max(0, Math.floor(game.aMax));
+          if (state.game.aMin > state.game.aMax) [state.game.aMin, state.game.aMax] = [state.game.aMax, state.game.aMin];
+          if (typeof game.bMin === 'number') state.game.bMin = Math.max(0, Math.floor(game.bMin));
+          if (typeof game.bMax === 'number') state.game.bMax = Math.max(0, Math.floor(game.bMax));
+          if (state.game.bMin > state.game.bMax) [state.game.bMin, state.game.bMax] = [state.game.bMax, state.game.bMin];
+          if (typeof game.numOptions !== 'undefined') state.game.numOptions = coerceCount(game.numOptions);
+          if (typeof game.autoNext === 'boolean') state.game.autoNext = game.autoNext;
+          if (typeof game.confettiEnabled === 'boolean') state.game.confettiEnabled = game.confettiEnabled;
+        }
+        if (overrides.progress && typeof overrides.progress === 'object') {
+          state.progress.accThreshold = toInt(
+            overrides.progress.accThreshold,
+            state.progress.accThreshold,
+            { min: 0, max: 100 }
+          );
+          state.progress.attemptThreshold = toInt(
+            overrides.progress.attemptThreshold,
+            state.progress.attemptThreshold,
+            { min: 0 }
+          );
+          state.progress.prizeInterval = toInt(
+            overrides.progress.prizeInterval,
+            state.progress.prizeInterval,
+            { min: 1 }
+          );
+        }
+        if (overrides.speech && typeof overrides.speech === 'object') {
+          state.speech.enabled = Boolean(overrides.speech.enabled);
+          state.speech.rate = toFloat(
+            overrides.speech.rate,
+            state.speech.rate,
+            { min: 0.1, max: 3 }
+          );
+          if (typeof overrides.speech.voiceURI === 'string') {
+            state.speech.voiceURI = overrides.speech.voiceURI;
+          }
+        }
+        if (Array.isArray(overrides.levels)) {
+          const cleaned = overrides.levels
+            .filter((v) => typeof v === 'string' && v.trim());
+          state.levels = cleaned;
+        }
+        if (Array.isArray(overrides.backgrounds)) {
+          const cleaned = overrides.backgrounds
+            .filter((v) => typeof v === 'string' && v.trim());
+          state.backgrounds = cleaned;
+        }
+      }
+
+      let lastBodyOverflow = '';
+      const config = await loadConfig();
+      const adminState = {
+        config,
+        game: deepClone(config.defaults.game),
+        progress: deepClone(config.defaults.progress),
+        speech: deepClone(config.defaults.speech),
+        levels: config.levels.slice(),
+        backgrounds: config.backgrounds.slice(),
+      };
+      let currentBackground = null;
+
+      applyAdminOverrides(adminState, loadAdminOverrides());
+
+      function collectList(value) {
+        return value
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter(Boolean);
+      }
+
+      function syncAdminForm() {
+        if (!adminForm) return;
+        if (gameAMinEl) gameAMinEl.value = String(adminState.game.aMin ?? '');
+        if (gameAMaxEl) gameAMaxEl.value = String(adminState.game.aMax ?? '');
+        if (gameBMinEl) gameBMinEl.value = String(adminState.game.bMin ?? '');
+        if (gameBMaxEl) gameBMaxEl.value = String(adminState.game.bMax ?? '');
+        if (gameNumOptionsEl) gameNumOptionsEl.value = String(adminState.game.numOptions ?? '');
+        if (gameAutoNextEl) gameAutoNextEl.checked = !!adminState.game.autoNext;
+        if (gameConfettiEl) gameConfettiEl.checked = !!adminState.game.confettiEnabled;
+        accThresholdEl.value = String(adminState.progress.accThreshold ?? '');
+        attemptThresholdEl.value = String(adminState.progress.attemptThreshold ?? '');
+        prizeIntervalEl.value = String(adminState.progress.prizeInterval ?? '');
+        speechEnabledEl.checked = !!adminState.speech.enabled;
+        speechRateEl.value = String(adminState.speech.rate ?? '');
+        speechVoiceEl.value = adminState.speech.voiceURI ?? '';
+        levelsListEl.value = adminState.levels.join('\n');
+        backgroundsListEl.value = adminState.backgrounds.join('\n');
+      }
+
+      function gatherAdminFormValues() {
+        const [aMin, aMax] = clampRange(
+          toInt(gameAMinEl?.value, adminState.game.aMin, { min: 0 }),
+          toInt(gameAMaxEl?.value, adminState.game.aMax, { min: 0 })
+        );
+        const [bMin, bMax] = clampRange(
+          toInt(gameBMinEl?.value, adminState.game.bMin, { min: 0 }),
+          toInt(gameBMaxEl?.value, adminState.game.bMax, { min: 0 })
+        );
+        const game = {
+          aMin,
+          aMax,
+          bMin,
+          bMax,
+          numOptions: coerceCount(gameNumOptionsEl?.value ?? adminState.game.numOptions),
+          autoNext: !!gameAutoNextEl?.checked,
+          confettiEnabled: !!gameConfettiEl?.checked,
+        };
+        const progress = {
+          accThreshold: toInt(
+            accThresholdEl.value,
+            adminState.progress.accThreshold,
+            { min: 0, max: 100 }
+          ),
+          attemptThreshold: toInt(
+            attemptThresholdEl.value,
+            adminState.progress.attemptThreshold,
+            { min: 0 }
+          ),
+          prizeInterval: toInt(
+            prizeIntervalEl.value,
+            adminState.progress.prizeInterval,
+            { min: 1 }
+          ),
+        };
+        const speech = {
+          enabled: !!speechEnabledEl.checked,
+          rate: toFloat(
+            speechRateEl.value,
+            adminState.speech.rate,
+            { min: 0.1, max: 3 }
+          ),
+          voiceURI: speechVoiceEl.value.trim(),
+        };
+        const levels = collectList(levelsListEl.value);
+        const backgrounds = collectList(backgroundsListEl.value);
+        return { game, progress, speech, levels, backgrounds };
+      }
+
+      function saveAdminOverrides() {
+        const payload = {
+          game: { ...adminState.game },
+          progress: { ...adminState.progress },
+          speech: { ...adminState.speech },
+          levels: adminState.levels.slice(),
+          backgrounds: adminState.backgrounds.slice(),
+        };
+        try {
+          localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(payload));
+        } catch {}
+      }
+
+      function cssBackgroundValue(path) {
+        const trimmed = path.trim();
+        if (!trimmed) return null;
+        const escaped = trimmed.replace(/(["\\])/g, '\\$1');
+        return `url("${escaped}") center / cover fixed no-repeat`;
+      }
+
+      function applyBackground(preferExisting = true) {
+        const rootStyle = document.documentElement.style;
+        if (!adminState.backgrounds.length) {
+          currentBackground = null;
+          rootStyle.setProperty('--bg-image', 'none');
+          return;
+        }
+        if (
+          preferExisting &&
+          currentBackground &&
+          adminState.backgrounds.includes(currentBackground)
+        ) {
+          const existing = cssBackgroundValue(currentBackground);
+          rootStyle.setProperty('--bg-image', existing ?? 'none');
+          return;
+        }
+        const idx = Math.floor(Math.random() * adminState.backgrounds.length);
+        currentBackground = adminState.backgrounds[idx];
+        const value = cssBackgroundValue(currentBackground);
+        rootStyle.setProperty('--bg-image', value ?? 'none');
+      }
+
+      function openAdminPanel() {
+        if (!adminOverlay) return;
+        syncAdminForm();
+        adminOverlay.hidden = false;
+        if (adminToggle) adminToggle.setAttribute('aria-expanded', 'true');
+        lastBodyOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(() => {
+          adminPanel?.focus();
+        });
+      }
+
+      function closeAdminPanel() {
+        if (!adminOverlay) return;
+        adminOverlay.hidden = true;
+        if (adminToggle) adminToggle.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = lastBodyOverflow;
+      }
+
+      if (adminToggle) {
+        adminToggle.setAttribute('aria-expanded', 'false');
+        adminToggle.addEventListener('click', openAdminPanel);
+      }
+      adminClose?.addEventListener('click', closeAdminPanel);
+      adminCancel?.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        closeAdminPanel();
+      });
+      adminOverlay?.addEventListener('click', (ev) => {
+        if (ev.target === adminOverlay) {
+          closeAdminPanel();
+        }
+      });
+      document.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape' && !(adminOverlay?.hidden ?? true)) {
+          closeAdminPanel();
+        }
+      });
+
+      adminReset?.addEventListener('click', () => {
+        adminState.game = deepClone(adminState.config.defaults.game);
+        adminState.progress = deepClone(adminState.config.defaults.progress);
+        adminState.speech = deepClone(adminState.config.defaults.speech);
+        adminState.levels = adminState.config.levels.slice();
+        adminState.backgrounds = adminState.config.backgrounds.slice();
+        currentBackground = null;
+        try {
+          localStorage.removeItem(ADMIN_STORAGE_KEY);
+        } catch {}
+        applyGameDefaults(adminState.game, { persistLocal: true, restartRound: true });
+        syncAdminForm();
+        applyBackground(false);
+      });
+
+      adminForm?.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        const next = gatherAdminFormValues();
+        adminState.game = next.game;
+        adminState.progress = next.progress;
+        adminState.speech = next.speech;
+        adminState.levels = next.levels;
+        adminState.backgrounds = next.backgrounds;
+        saveAdminOverrides();
+        applyGameDefaults(adminState.game, { persistLocal: true, restartRound: true });
+        applyBackground(false);
+        closeAdminPanel();
+      });
+
+      applyBackground(false);
+      syncAdminForm();
+
       const state = {
-        aMin: 1, aMax: 12,
-        bMin: 1, bMax: 12,
-        numOptions: 4,
-        autoNext: true,
+        aMin: typeof adminState.game.aMin === 'number' ? adminState.game.aMin : 1,
+        aMax: typeof adminState.game.aMax === 'number' ? adminState.game.aMax : 12,
+        bMin: typeof adminState.game.bMin === 'number' ? adminState.game.bMin : 1,
+        bMax: typeof adminState.game.bMax === 'number' ? adminState.game.bMax : 12,
+        numOptions: coerceCount(
+          typeof adminState.game.numOptions !== 'undefined'
+            ? adminState.game.numOptions
+            : 4
+        ),
+        autoNext: typeof adminState.game.autoNext === 'boolean' ? adminState.game.autoNext : true,
         correct: 0,
         total: 0,
         currentA: null,
         currentB: null,
         answered: false,
         nextTimeout: null,
-        confettiEnabled: true,
+        confettiEnabled: typeof adminState.game.confettiEnabled === 'boolean'
+          ? adminState.game.confettiEnabled
+          : true,
       };
 
-      // Confetti controller
+      applyGameDefaults(adminState.game, { syncUI: false, persistLocal: false, restartRound: false });
+
       const confetti = (() => {
         let ctx = null;
         let anim = null;
         let startTime = 0;
-        let duration = 2400; // ms — a bit longer celebration
+        let duration = 2400;
         let particles = [];
 
         const colors = ['#22d3ee', '#38bdf8', '#ffd166', '#22c55e', '#fb3b3b', '#a78bfa', '#f59e0b', '#ff7ac6'];
@@ -441,7 +1152,7 @@
           particles = [];
           for (let i = 0; i < n; i++) {
             const x = Math.random() * window.innerWidth;
-            const y = -Math.random() * window.innerHeight * 0.2; // start slightly above
+            const y = -Math.random() * window.innerHeight * 0.2;
             const size = 6 + Math.random() * 8;
             const vx = (Math.random() - 0.5) * 2.2;
             const vy = 1 + Math.random() * 2.5;
@@ -464,7 +1175,7 @@
             p.y += p.vy;
             p.rot += p.vr;
             p.life = t;
-            const fade = t < 0.7 ? 1 : 1 - (t - 0.7) / 0.3; // fade last 30%
+            const fade = t < 0.7 ? 1 : 1 - (t - 0.7) / 0.3;
             ctx.save();
             ctx.globalAlpha = Math.max(0, Math.min(1, fade));
             ctx.translate(p.x, p.y);
@@ -478,7 +1189,6 @@
           if (elapsed < duration) {
             anim = requestAnimationFrame(step);
           } else {
-            // end
             cancelAnimationFrame(anim);
             anim = null;
             startTime = 0;
@@ -505,29 +1215,8 @@
         return { burst };
       })();
 
-      // Allowed option counts (removed 5)
-      const allowedCounts = [2,3,4,6];
-      const coerceCount = (n) => {
-        n = Number(n) || 4;
-        if (allowedCounts.includes(n)) return n;
-        // if user had 5 saved, pick nearest higher (6)
-        if (n === 5) return 6;
-        // fallback clamp to nearest allowed
-        const sorted = allowedCounts.slice().sort((a,b)=>a-b);
-        if (n <= sorted[0]) return sorted[0];
-        if (n >= sorted[sorted.length-1]) return sorted[sorted.length-1];
-        // find closest
-        let best = sorted[0], bestDiff = Math.abs(n - best);
-        for (const v of sorted) {
-          const d = Math.abs(n - v);
-          if (d < bestDiff) { best = v; bestDiff = d; }
-        }
-        return best;
-      };
-
-      // Load settings from localStorage if available
       try {
-        const saved = JSON.parse(localStorage.getItem('mtg-settings') || '{}');
+        const saved = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '{}');
         if (typeof saved.aMin === 'number') state.aMin = saved.aMin;
         if (typeof saved.aMax === 'number') state.aMax = saved.aMax;
         if (typeof saved.bMin === 'number') state.bMin = saved.bMin;
@@ -537,7 +1226,6 @@
         if (typeof saved.confettiEnabled === 'boolean') state.confettiEnabled = saved.confettiEnabled;
       } catch {}
 
-      // Sync UI from state
       function syncSettingsUI() {
         aMinEl.value = state.aMin;
         aMaxEl.value = state.aMax;
@@ -555,6 +1243,18 @@
         return [min, max];
       }
 
+      function persistUserSettings() {
+        try {
+          localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({
+            aMin: state.aMin, aMax: state.aMax,
+            bMin: state.bMin, bMax: state.bMax,
+            numOptions: state.numOptions,
+            autoNext: state.autoNext,
+            confettiEnabled: state.confettiEnabled,
+          }));
+        } catch {}
+      }
+
       function saveSettings() {
         const [aMin, aMax] = clampRange(Number(aMinEl.value), Number(aMaxEl.value));
         const [bMin, bMax] = clampRange(Number(bMinEl.value), Number(bMaxEl.value));
@@ -567,20 +1267,37 @@
         state.confettiEnabled = !!confettiToggleEl.checked;
 
         syncSettingsUI();
-        try {
-          localStorage.setItem('mtg-settings', JSON.stringify({
-            aMin: state.aMin, aMax: state.aMax,
-            bMin: state.bMin, bMax: state.bMax,
-            numOptions: state.numOptions,
-            autoNext: state.autoNext,
-            confettiEnabled: state.confettiEnabled,
-          }));
-        } catch {}
+        persistUserSettings();
       }
 
-      function randInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+      function applyGameDefaults(game, { syncUI = true, persistLocal = false, restartRound = false } = {}) {
+        if (!game) return;
+        const [aMin, aMax] = clampRange(
+          toInt(game.aMin, state.aMin, { min: 0 }),
+          toInt(game.aMax, state.aMax, { min: 0 })
+        );
+        const [bMin, bMax] = clampRange(
+          toInt(game.bMin, state.bMin, { min: 0 }),
+          toInt(game.bMax, state.bMax, { min: 0 })
+        );
+
+        state.aMin = aMin;
+        state.aMax = aMax;
+        state.bMin = bMin;
+        state.bMax = bMax;
+        state.numOptions = coerceCount(typeof game.numOptions !== 'undefined' ? game.numOptions : state.numOptions);
+        state.autoNext = typeof game.autoNext === 'boolean' ? game.autoNext : !!state.autoNext;
+        state.confettiEnabled = typeof game.confettiEnabled === 'boolean' ? game.confettiEnabled : !!state.confettiEnabled;
+
+        if (syncUI) syncSettingsUI();
+        if (persistLocal) persistUserSettings();
+        if (restartRound) {
+          clearTimers();
+          newRound();
+        }
       }
+
+      const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
       function shuffle(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
@@ -594,12 +1311,11 @@
         const correct = a * b;
         const wrongSet = new Set();
 
-        // Sample from neighbors A±1 and B±1 combinations
         for (let da = -1; da <= 1; da++) {
           for (let db = -1; db <= 1; db++) {
             const aa = a + da;
             const bb = b + db;
-            if (aa === a && bb === b) continue; // skip actual
+            if (aa === a && bb === b) continue;
             if (aa < aMin || aa > aMax || bb < bMin || bb > bMax) continue;
             const val = aa * bb;
             if (val !== correct) wrongSet.add(val);
@@ -610,7 +1326,6 @@
         shuffle(wrongs);
         wrongs = wrongs.slice(0, Math.max(0, count - 1));
 
-        // Fallback: if not enough, sample random products within ranges
         let guard = 0;
         while (wrongs.length < (count - 1) && guard++ < 200) {
           const aa = randInt(aMin, aMax);
@@ -660,9 +1375,7 @@
 
         const opts = generateOptions(a, b, state.numOptions, state.aMin, state.aMax, state.bMin, state.bMax);
 
-        // Render options
         optionsEl.innerHTML = '';
-        // Apply layout class based on option count
         optionsEl.classList.remove('opts-2','opts-3','opts-4','opts-6');
         const cls = 'opts-' + Math.max(2, Math.min(6, opts.length));
         optionsEl.classList.add(cls);
@@ -674,7 +1387,6 @@
           optionsEl.appendChild(btn);
         });
 
-        // Wire clicks
         optionsEl.querySelectorAll('.option').forEach(btn => {
           btn.addEventListener('click', onAnswerClick, { once: false });
         });
@@ -693,7 +1405,6 @@
         state.total += 1;
         if (isCorrect) state.correct += 1;
 
-        // Visual feedback
         const btn = ev.currentTarget;
         btn.classList.add(isCorrect ? 'correct' : 'wrong');
         if (!isCorrect) {
@@ -707,7 +1418,6 @@
         clearEquationState();
         equationEl.classList.add(isCorrect ? 'ok' : 'bad');
 
-        // Confetti every 10 correct answers
         if (isCorrect && state.confettiEnabled && state.correct > 0 && state.correct % 10 === 0) {
           confetti.burst(140);
         }
@@ -718,7 +1428,6 @@
         }
       }
 
-      // Buttons
       nextBtn.addEventListener('click', () => {
         newRound();
       });
@@ -731,7 +1440,6 @@
       });
       newQuestionBtn.addEventListener('click', () => newRound());
 
-      // Initialize
       syncSettingsUI();
       updateScoreboard();
       newRound();
