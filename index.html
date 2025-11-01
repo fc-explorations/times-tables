@@ -61,7 +61,7 @@
     .title {
       font-weight: 800;
       letter-spacing: 0.3px;
-      font-size: clamp(20px, 2.3vw, 32px);
+      font-size: clamp(20px, 3vw, 72px);
     }
 
     .subtle {
@@ -129,9 +129,9 @@
       background: rgba(255,255,255,0.7);
       border: 1px solid rgba(186,152,112,0.25);
       border-radius: 12px;
-      padding: 10px 14px 12px;
+      padding: 8px 12px 10px;
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
     .collection-title {
       margin: 0;
@@ -145,7 +145,7 @@
       flex-wrap: wrap;
       gap: 8px;
       align-items: center;
-      min-height: 36px;
+      min-height: 28px;
     }
     .collection-item {
       display: inline-flex;
@@ -172,14 +172,33 @@
     }
 
     .score {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
       align-items: center;
       font-size: 0.95rem;
       color: var(--muted);
+      text-align: center;
     }
-    .score strong { color: var(--text); }
+    .score-card {
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(186,152,112,0.32);
+      border-radius: 10px;
+      padding: 8px 10px;
+      box-shadow: 0 4px 10px rgba(120,90,60,0.12);
+      display: grid;
+      gap: 4px;
+    }
+    .score-card strong {
+      color: var(--text);
+      font-size: 1.05rem;
+    }
+    .score-card .label {
+      font-size: 0.75rem;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: rgba(77,60,46,0.75);
+    }
 
     .equation {
       text-align: center;
@@ -189,7 +208,7 @@
       padding: 4px 0 0;
     }
 
-    :root { --opt-h: 40px; --opt-gap: 10px; }
+    :root { --opt-h: 44px; --opt-gap: 10px; }
     .options {
       display: grid;
       gap: var(--opt-gap);
@@ -207,10 +226,10 @@
       border: 1px solid rgba(124,103,84,0.25);
       border-radius: 12px;
       color: var(--text);
-      padding: 10px 10px;
+      padding: 12px 12px;
       cursor: pointer;
       font-weight: 700;
-      font-size: 1.05rem;
+      font-size: 1.2rem;
       text-align: center;
       transition: transform 120ms ease, background 160ms ease, border 160ms ease, opacity 160ms ease;
       user-select: none;
@@ -465,11 +484,17 @@
     <main class="container">
       <section class="game-card" aria-live="polite">
         <div class="score">
-          <div>
-            Correct: <strong id="correctCnt">0</strong> / <strong id="totalCnt">0</strong>
+          <div class="score-card">
+            <span class="label">Correct</span>
+            <strong><span id="correctCnt">0</span> / <span id="totalCnt">0</span></strong>
           </div>
-          <div>
-            Accuracy: <strong id="accuracy">—</strong>
+          <div class="score-card">
+            <span class="label">Streak</span>
+            <strong id="streakCount">0</strong>
+          </div>
+          <div class="score-card">
+            <span class="label">Accuracy</span>
+            <strong id="accuracy">—</strong>
           </div>
         </div>
 
@@ -617,6 +642,7 @@
       const correctCntEl = el('correctCnt');
       const totalCntEl = el('totalCnt');
       const accuracyEl = el('accuracy');
+      const streakCntEl = el('streakCount');
 
       const confettiCanvas = el('confettiCanvas');
 
@@ -1310,6 +1336,7 @@
           }
         } catch {}
         updateCollectionTray();
+        updateStreakDisplay();
       }
 
       function saveRewardCollection() {
@@ -1327,6 +1354,7 @@
         if (resetStreak) rewardState.streak = 0;
         if (persist) saveRewardCollection();
         updateCollectionTray();
+        updateStreakDisplay();
       }
 
       function applyRewardDefaults(rewards, { persistLocal = false, restartStreak = false } = {}) {
@@ -1351,6 +1379,7 @@
         if (restartStreak) rewardState.streak = 0;
         if (persistLocal) saveRewardCollection();
         updateCollectionTray();
+        updateStreakDisplay();
       }
 
       function pickRewardEmoji() {
@@ -1409,6 +1438,7 @@
         } else {
           rewardState.streak = 0;
         }
+        updateStreakDisplay();
       }
 
       const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -1462,6 +1492,13 @@
         correctCntEl.textContent = String(state.correct);
         totalCntEl.textContent = String(state.total);
         accuracyEl.textContent = formatAccuracy(state.correct, state.total);
+        updateStreakDisplay();
+      }
+
+      function updateStreakDisplay() {
+        if (streakCntEl) {
+          streakCntEl.textContent = String(rewardState.streak);
+        }
       }
 
       function clearEquationState() {
