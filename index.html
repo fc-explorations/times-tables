@@ -125,6 +125,52 @@
       gap: 18px;
     }
 
+    .collection {
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(186,152,112,0.25);
+      border-radius: 12px;
+      padding: 14px 16px 16px;
+      display: grid;
+      gap: 12px;
+    }
+    .collection-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: var(--text);
+    }
+    .collection-body {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      min-height: 42px;
+    }
+    .collection-item {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(186,152,112,0.32);
+      font-size: 1rem;
+      box-shadow: 0 6px 12px rgba(120,90,60,0.12);
+    }
+    .collection-item .emoji {
+      font-size: 1.3rem;
+    }
+    .collection-item .count {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .collection-empty {
+      font-size: 0.9rem;
+      color: rgba(77,60,46,0.75);
+    }
+
     .score {
       display: flex;
       justify-content: space-between;
@@ -204,6 +250,32 @@
       pointer-events: none;
       z-index: 999;
       display: none;
+    }
+
+    #reward-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .reward-pop {
+      position: absolute;
+      font-size: clamp(48px, 12vw, 96px);
+      transform: scale(0.2) translateY(20px);
+      opacity: 0;
+      text-shadow: 0 8px 20px rgba(120,90,60,0.35);
+      animation: reward-pop 2400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes reward-pop {
+      0% { opacity: 0; transform: scale(0.2) translateY(30px); }
+      18% { opacity: 1; transform: scale(1.05) translateY(-6px); }
+      32% { transform: scale(0.95) translateY(0); }
+      50% { transform: scale(1) translateY(0); }
+      72% { opacity: 1; transform: scale(0.98) translateY(-10px); }
+      100% { opacity: 0; transform: scale(1.1) translateY(-35px); }
     }
 
     #admin-toggle {
@@ -403,6 +475,11 @@
           <button id="nextBtn" class="btn ghost" title="Next question">Next</button>
           <button id="resetBtn" class="btn secondary" title="Reset score">Reset Score</button>
         </div>
+
+        <div class="collection">
+          <h3 class="collection-title">Rewards</h3>
+          <div id="collectionTray" class="collection-body" aria-live="polite"></div>
+        </div>
       </section>
     </main>
 
@@ -412,6 +489,7 @@
   </div>
 
   <canvas id="confettiCanvas"></canvas>
+  <div id="reward-layer" aria-live="polite"></div>
 
   <div id="admin-overlay" hidden>
     <div id="admin-panel" role="dialog" aria-modal="true" aria-labelledby="admin-title" tabindex="-1">
@@ -483,6 +561,24 @@
           </div>
         </details>
 
+        <details class="admin-section" open>
+          <summary>Rewards</summary>
+          <div class="admin-fields">
+            <label>
+              <span>Streak interval</span>
+              <input id="reward-interval" type="number" min="1" step="1" />
+            </label>
+            <label>
+              <span>Reward emojis (one per line)</span>
+              <textarea id="reward-emojis" rows="4"></textarea>
+            </label>
+            <label class="checkbox">
+              <input id="reward-unique" type="checkbox" />
+              <span>Prevent duplicate rewards</span>
+            </label>
+          </div>
+        </details>
+
         <details class="admin-section">
           <summary>Level editor</summary>
           <div class="admin-fields">
@@ -536,6 +632,11 @@
       const attemptThresholdEl = el('progress-attempt-threshold');
       const prizeIntervalEl = el('progress-prize-interval');
       const backgroundsListEl = el('backgrounds-list');
+      const rewardIntervalEl = el('reward-interval');
+      const rewardEmojisEl = el('reward-emojis');
+      const rewardUniqueEl = el('reward-unique');
+      const rewardLayer = el('reward-layer');
+      const collectionTray = el('collectionTray');
 
       const allowedCounts = [2, 3, 4, 6];
       function coerceCount(n) {
@@ -557,6 +658,7 @@
       const SETTINGS_STORAGE_KEY = 'mtg-settings';
       const ADMIN_STORAGE_KEY = 'mtg-admin-settings';
       const CONFIG_PATH = 'config.json';
+      const REWARD_STORAGE_KEY = 'mtg-reward-collection';
 
       const fallbackConfig = {
         levels: ['level_1.yaml', 'level_2.yaml'],
@@ -572,6 +674,11 @@
             confettiEnabled: true,
           },
           progress: { accThreshold: 80, attemptThreshold: 10, prizeInterval: 5 },
+          rewards: {
+            streakInterval: 5,
+            preventDuplicates: false,
+            emojiPool: ['🏆','🎉','🌟','🍬','🧠'],
+          },
         },
       };
 
@@ -638,6 +745,28 @@
               { min: 1 }
             );
           }
+          if (raw.defaults.rewards && typeof raw.defaults.rewards === 'object') {
+            const src = raw.defaults.rewards;
+            const rewards = normalized.defaults.rewards;
+            rewards.streakInterval = toInt(
+              src.streakInterval,
+              rewards.streakInterval,
+              { min: 1 }
+            );
+            rewards.preventDuplicates = Boolean(src.preventDuplicates);
+            let pool = [];
+            if (Array.isArray(src.emojiPool)) {
+              pool = src.emojiPool;
+            } else if (typeof src.emojiPool === 'string') {
+              pool = src.emojiPool.split(/[\r\n,]+/);
+            }
+            pool = pool
+              .map((val) => typeof val === 'string' ? val.trim() : '')
+              .filter(Boolean);
+            if (pool.length) {
+              rewards.emojiPool = Array.from(new Set(pool));
+            }
+          }
         }
         return normalized;
       }
@@ -701,6 +830,25 @@
             .filter((v) => typeof v === 'string' && v.trim());
           state.backgrounds = cleaned;
         }
+        if (overrides.rewards && typeof overrides.rewards === 'object') {
+          const rewards = overrides.rewards;
+          if (typeof rewards.streakInterval !== 'undefined') {
+            state.rewards.streakInterval = toInt(
+              rewards.streakInterval,
+              state.rewards.streakInterval,
+              { min: 1 }
+            );
+          }
+          if (typeof rewards.preventDuplicates === 'boolean') {
+            state.rewards.preventDuplicates = rewards.preventDuplicates;
+          }
+          if (Array.isArray(rewards.emojiPool)) {
+            const cleaned = rewards.emojiPool
+              .map((v) => typeof v === 'string' ? v.trim() : '')
+              .filter(Boolean);
+            if (cleaned.length) state.rewards.emojiPool = Array.from(new Set(cleaned));
+          }
+        }
       }
 
       let lastBodyOverflow = '';
@@ -709,6 +857,7 @@
         config,
         game: deepClone(config.defaults.game),
         progress: deepClone(config.defaults.progress),
+        rewards: deepClone(config.defaults.rewards),
         backgrounds: config.backgrounds.slice(),
       };
       let currentBackground = null;
@@ -735,6 +884,9 @@
         attemptThresholdEl.value = String(adminState.progress.attemptThreshold ?? '');
         prizeIntervalEl.value = String(adminState.progress.prizeInterval ?? '');
         backgroundsListEl.value = adminState.backgrounds.join('\n');
+        if (rewardIntervalEl) rewardIntervalEl.value = String(adminState.rewards.streakInterval ?? '');
+        if (rewardEmojisEl) rewardEmojisEl.value = adminState.rewards.emojiPool.join('\n');
+        if (rewardUniqueEl) rewardUniqueEl.checked = !!adminState.rewards.preventDuplicates;
       }
 
       function gatherAdminFormValues() {
@@ -773,13 +925,27 @@
           ),
         };
         const backgrounds = collectList(backgroundsListEl.value);
-        return { game, progress, backgrounds };
+        let emojis = collectList(rewardEmojisEl?.value || '');
+        if (!emojis.length) {
+          emojis = adminState.rewards.emojiPool.slice();
+        }
+        const rewards = {
+          streakInterval: toInt(
+            rewardIntervalEl?.value,
+            adminState.rewards.streakInterval,
+            { min: 1 }
+          ),
+          preventDuplicates: !!rewardUniqueEl?.checked,
+          emojiPool: Array.from(new Set(emojis)),
+        };
+        return { game, progress, rewards, backgrounds };
       }
 
       function saveAdminOverrides() {
         const payload = {
           game: { ...adminState.game },
           progress: { ...adminState.progress },
+          rewards: { ...adminState.rewards, emojiPool: adminState.rewards.emojiPool.slice() },
           backgrounds: adminState.backgrounds.slice(),
         };
         try {
@@ -859,12 +1025,15 @@
       adminReset?.addEventListener('click', () => {
         adminState.game = deepClone(adminState.config.defaults.game);
         adminState.progress = deepClone(adminState.config.defaults.progress);
+        adminState.rewards = deepClone(adminState.config.defaults.rewards);
         adminState.backgrounds = adminState.config.backgrounds.slice();
         currentBackground = null;
         try {
           localStorage.removeItem(ADMIN_STORAGE_KEY);
         } catch {}
+        clearRewardCollection({ persist: true, resetStreak: true });
         applyGameDefaults(adminState.game, { persistLocal: true, restartRound: true });
+        applyRewardDefaults(adminState.rewards, { persistLocal: true, restartStreak: true });
         syncAdminForm();
         applyBackground(false);
       });
@@ -874,9 +1043,11 @@
         const next = gatherAdminFormValues();
         adminState.game = next.game;
         adminState.progress = next.progress;
+        adminState.rewards = next.rewards;
         adminState.backgrounds = next.backgrounds;
         saveAdminOverrides();
         applyGameDefaults(adminState.game, { persistLocal: true, restartRound: true });
+        applyRewardDefaults(adminState.rewards, { persistLocal: true });
         applyBackground(false);
         closeAdminPanel();
       });
@@ -906,7 +1077,21 @@
           : true,
       };
 
+      const rewardState = {
+        streak: 0,
+        interval: Math.max(1, adminState.rewards.streakInterval || 5),
+        preventDuplicates: !!adminState.rewards.preventDuplicates,
+        pool: Array.isArray(adminState.rewards.emojiPool) && adminState.rewards.emojiPool.length
+          ? adminState.rewards.emojiPool.slice()
+          : fallbackConfig.defaults.rewards.emojiPool.slice(),
+        collection: new Map(),
+        order: [],
+        animationDuration: 2400,
+      };
+
       applyGameDefaults(adminState.game);
+      hydrateRewardCollection();
+      applyRewardDefaults(adminState.rewards);
 
       const confetti = (() => {
         let ctx = null;
@@ -1063,6 +1248,163 @@
         }
       }
 
+      function updateCollectionTray() {
+        if (!collectionTray) return;
+        collectionTray.innerHTML = '';
+        const visible = rewardState.order.filter((emoji) => rewardState.collection.has(emoji));
+        if (!visible.length) {
+          const empty = document.createElement('div');
+          empty.className = 'collection-empty';
+          empty.textContent = 'Keep a streak going to earn new reward emojis.';
+          collectionTray.appendChild(empty);
+          return;
+        }
+        for (const emoji of visible) {
+          const count = rewardState.collection.get(emoji) || 0;
+          const chip = document.createElement('span');
+          chip.className = 'collection-item';
+          const emojiSpan = document.createElement('span');
+          emojiSpan.className = 'emoji';
+          emojiSpan.textContent = emoji;
+          chip.appendChild(emojiSpan);
+          if (count > 1) {
+            const countSpan = document.createElement('span');
+            countSpan.className = 'count';
+            countSpan.textContent = `×${count}`;
+            chip.appendChild(countSpan);
+          }
+          collectionTray.appendChild(chip);
+        }
+      }
+
+      function hydrateRewardCollection() {
+        rewardState.collection = new Map();
+        rewardState.order = [];
+        try {
+          const raw = JSON.parse(localStorage.getItem(REWARD_STORAGE_KEY) || '[]');
+          if (Array.isArray(raw)) {
+            for (const entry of raw) {
+              let emoji = '';
+              let count = 1;
+              if (Array.isArray(entry)) {
+                [emoji, count] = entry;
+              } else if (entry && typeof entry === 'object') {
+                emoji = entry.emoji;
+                count = entry.count;
+              }
+              if (typeof emoji !== 'string') continue;
+              const trimmed = emoji.trim();
+              if (!trimmed) continue;
+              const qty = Math.max(1, Number(count) || 1);
+              rewardState.collection.set(trimmed, qty);
+              if (!rewardState.order.includes(trimmed)) {
+                rewardState.order.push(trimmed);
+              }
+            }
+          }
+        } catch {}
+        updateCollectionTray();
+      }
+
+      function saveRewardCollection() {
+        const payload = rewardState.order
+          .filter((emoji) => rewardState.collection.has(emoji))
+          .map((emoji) => [emoji, rewardState.collection.get(emoji)]);
+        try {
+          localStorage.setItem(REWARD_STORAGE_KEY, JSON.stringify(payload));
+        } catch {}
+      }
+
+      function clearRewardCollection({ persist = true, resetStreak = true } = {}) {
+        rewardState.collection = new Map();
+        rewardState.order = [];
+        if (resetStreak) rewardState.streak = 0;
+        if (persist) saveRewardCollection();
+        updateCollectionTray();
+      }
+
+      function applyRewardDefaults(rewards, { persistLocal = false, restartStreak = false } = {}) {
+        if (!rewards) return;
+        rewardState.interval = Math.max(1, toInt(
+          rewards.streakInterval,
+          rewardState.interval,
+          { min: 1 }
+        ));
+        rewardState.preventDuplicates = !!rewards.preventDuplicates;
+        const poolSource = Array.isArray(rewards.emojiPool) && rewards.emojiPool.length
+          ? rewards.emojiPool
+          : fallbackConfig.defaults.rewards.emojiPool;
+        rewardState.pool = Array.from(new Set(
+          poolSource
+            .map((val) => typeof val === 'string' ? val.trim() : '')
+            .filter(Boolean)
+        ));
+        if (!rewardState.pool.length) {
+          rewardState.pool = fallbackConfig.defaults.rewards.emojiPool.slice();
+        }
+        if (restartStreak) rewardState.streak = 0;
+        if (persistLocal) saveRewardCollection();
+        updateCollectionTray();
+      }
+
+      function pickRewardEmoji() {
+        if (!rewardState.pool.length) return null;
+        let choices = rewardState.pool;
+        if (rewardState.preventDuplicates) {
+          const unseen = rewardState.pool.filter((emoji) => !rewardState.collection.has(emoji));
+          if (unseen.length) choices = unseen;
+        }
+        if (!choices.length) return null;
+        const idx = Math.floor(Math.random() * choices.length);
+        return choices[idx];
+      }
+
+      function playRewardAudio() {
+        // Hook: designers can wire optional audio here.
+      }
+
+      function showRewardAnimation(emoji) {
+        if (!rewardLayer) return;
+        const node = document.createElement('span');
+        node.className = 'reward-pop';
+        node.textContent = emoji;
+        rewardLayer.appendChild(node);
+        const duration = rewardState.animationDuration || 2400;
+        setTimeout(() => {
+          node.remove();
+        }, duration + 200);
+      }
+
+      function emitRewardEvent(detail) {
+        document.dispatchEvent(new CustomEvent('reward:earned', { detail }));
+      }
+
+      function awardReward(emoji) {
+        if (!emoji) return;
+        const current = rewardState.collection.get(emoji) || 0;
+        rewardState.collection.set(emoji, current + 1);
+        if (!rewardState.order.includes(emoji)) {
+          rewardState.order.push(emoji);
+        }
+        saveRewardCollection();
+        updateCollectionTray();
+        showRewardAnimation(emoji);
+        playRewardAudio();
+        emitRewardEvent({ emoji, count: rewardState.collection.get(emoji), streak: rewardState.streak });
+      }
+
+      function handleStreakResult(isCorrect) {
+        if (isCorrect) {
+          rewardState.streak += 1;
+          if (rewardState.interval > 0 && rewardState.streak % rewardState.interval === 0) {
+            const emoji = pickRewardEmoji();
+            awardReward(emoji);
+          }
+        } else {
+          rewardState.streak = 0;
+        }
+      }
+
       const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
       function shuffle(arr) {
@@ -1184,6 +1526,8 @@
         clearEquationState();
         equationEl.classList.add(isCorrect ? 'ok' : 'bad');
 
+        handleStreakResult(isCorrect);
+
         if (isCorrect && state.confettiEnabled && state.correct > 0 && state.correct % 10 === 0) {
           confetti.burst(140);
         }
@@ -1198,7 +1542,11 @@
         newRound();
       });
       resetBtn.addEventListener('click', () => {
-        state.correct = 0; state.total = 0; updateScoreboard();
+        state.correct = 0;
+        state.total = 0;
+        rewardState.streak = 0;
+        clearRewardCollection({ persist: true, resetStreak: false });
+        updateScoreboard();
       });
       updateScoreboard();
       newRound();

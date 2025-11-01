@@ -11,6 +11,11 @@
       "autoNext": true,
       "confettiEnabled": true
     },
-    "progress": { "accThreshold": 80, "attemptThreshold": 10, "prizeInterval": 5 }
+    "progress": { "accThreshold": 80, "attemptThreshold": 10, "prizeInterval": 5 },
+    "rewards": {
+      "streakInterval": 5,
+      "preventDuplicates": false,
+      "emojiPool": ["🏆","🎉","🌟","🍬","🧠"]
+    }
   }
 }
