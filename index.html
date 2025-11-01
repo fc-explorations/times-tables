@@ -54,7 +54,7 @@
     }
 
     header {
-      padding: 18px 20px 8px;
+      padding: 12px 20px 6px;
       text-align: center;
     }
 
@@ -74,9 +74,9 @@
       max-width: 920px;
       width: 100%;
       margin: 0 auto;
-      padding: 16px;
+      padding: 12px;
       display: grid;
-      gap: 16px;
+      gap: 12px;
       grid-template-columns: 1fr;
     }
 
@@ -86,7 +86,7 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 4px;
+      margin-top: 0;
       align-items: center; /* avoid stretching to tallest button */
     }
 
@@ -120,18 +120,18 @@
       border: 1px solid rgba(120,90,60,0.18);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 20px;
+      padding: 16px;
       display: grid;
-      gap: 18px;
+      gap: 12px;
     }
 
     .collection {
       background: rgba(255,255,255,0.7);
       border: 1px solid rgba(186,152,112,0.25);
       border-radius: 12px;
-      padding: 14px 16px 16px;
+      padding: 10px 14px 12px;
       display: grid;
-      gap: 12px;
+      gap: 10px;
     }
     .collection-title {
       margin: 0;
@@ -143,9 +143,9 @@
     .collection-body {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
-      min-height: 42px;
+      min-height: 36px;
     }
     .collection-item {
       display: inline-flex;
@@ -183,13 +183,13 @@
 
     .equation {
       text-align: center;
-      font-size: clamp(34px, 6.5vw, 64px);
+      font-size: clamp(30px, 5.5vw, 52px);
       font-weight: 800;
-      letter-spacing: 0.5px;
-      padding: 8px 0 2px;
+      letter-spacing: 0.4px;
+      padding: 4px 0 0;
     }
 
-    :root { --opt-h: 56px; --opt-gap: 12px; }
+    :root { --opt-h: 40px; --opt-gap: 10px; }
     .options {
       display: grid;
       gap: var(--opt-gap);
@@ -207,10 +207,10 @@
       border: 1px solid rgba(124,103,84,0.25);
       border-radius: 12px;
       color: var(--text);
-      padding: 14px 12px;
+      padding: 10px 10px;
       cursor: pointer;
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       text-align: center;
       transition: transform 120ms ease, background 160ms ease, border 160ms ease, opacity 160ms ease;
       user-select: none;
@@ -238,7 +238,7 @@
       text-align: center;
       color: var(--muted);
       font-size: 0.85rem;
-      padding: 20px;
+      padding: 12px;
     }
 
     /* Confetti overlay */
@@ -317,9 +317,9 @@
       background: var(--admin-bg);
       border-radius: 12px;
       box-shadow: 0 20px 45px rgba(120,90,60,0.35);
-      padding: 28px 24px 24px;
+      padding: 32px 28px 28px;
       display: grid;
-      gap: 18px;
+      gap: 24px;
       max-height: min(92vh, 640px);
       overflow-y: auto;
       border: 1px solid rgba(186,152,112,0.25);
@@ -331,6 +331,11 @@
       font-weight: 800;
       letter-spacing: 0.3px;
       color: var(--text);
+    }
+
+    #admin-panel form {
+      display: grid;
+      gap: 24px;
     }
 
     #admin-close {
@@ -369,8 +374,8 @@
 
     .admin-fields {
       display: grid;
-      gap: 14px;
-      padding: 16px 18px 20px;
+      gap: 18px;
+      padding: 20px 22px 24px;
     }
 
     .admin-fields label {
@@ -431,6 +436,7 @@
       flex-wrap: wrap;
       gap: 10px;
       justify-content: flex-end;
+      padding-top: 8px;
     }
 
     @media (max-width: 720px) {
@@ -440,7 +446,7 @@
       }
       #admin-panel {
         width: min(100%, 420px);
-        padding: 24px 20px 20px;
+        padding: 28px 22px 24px;
       }
     }
   </style>

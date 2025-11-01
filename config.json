@@ -1,6 +1,5 @@
 {
-  "levels": ["level_1.yaml", "level_2.yaml"],
-  "backgrounds": ["img/cats.jpg", "img/cats2.jpg"],
+  "backgrounds": ["img/cats.jpg", "img/cats2.jpg", "img/cats3.jpg"],
   "defaults": {
     "game": {
       "aMin": 1,
@@ -14,7 +13,7 @@
     "progress": { "accThreshold": 80, "attemptThreshold": 10, "prizeInterval": 5 },
     "rewards": {
       "streakInterval": 5,
-      "preventDuplicates": false,
+      "preventDuplicates": true,
       "emojiPool": ["🏆","🎉","🌟","🍬","🧠"]
     }
   }
